@@ -10,6 +10,7 @@ describe('YoutubeService', () => {
   const folder: string = 'test-assets';
   const url: string = 'https://www.youtube.com/watch?v=c0ruHxX7r3M';
   const name: string = 'test-video.mp4';
+  const testName: string = 'test-video-IT.mp4'
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [YoutubeService],
@@ -18,9 +19,17 @@ describe('YoutubeService', () => {
     service = module.get<YoutubeService>(YoutubeService);
   });
 
+  it('should validate URL before attempt to download', async () => {
+    try {
+      const video = await service.download({ name: `test-video-IT.mp4`, folder, url: 'obviously-wrong-url' })
+      expect(video).toBe('wrong url')
+    } catch (err) {
+      throw new Error(err)
+    }
+  })
+
   it('should download video from youtube using url and set its correct name on given folder', async () => {
     try {
-      const testName = 'test-video-IT.mp4'
       await remove(join(process.cwd(), folder, testName))
       const video = await service.download({ name: `test-video-IT.mp4`, folder, url })
       const folderFiles = await readdir(join(process.cwd(), folder))
