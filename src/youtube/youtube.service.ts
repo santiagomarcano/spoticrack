@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createWriteStream } from 'fs';
+import { remove } from 'fs-extra'
 import { join } from 'path';
 
 const ytdl = require('ytdl-core');
@@ -8,7 +9,7 @@ const ffmpeg = require('ffmpeg')
 @Injectable()
 export class YoutubeService {
 
-  async download({ name, folder, url }: { name: string; folder: string; url: string; }) {
+  async download({ name, folder, url }: { name: string; folder: string; url: string; }): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!ytdl.validateURL(url)) {
         resolve('wrong url')
@@ -19,7 +20,7 @@ export class YoutubeService {
         console.log(data)
       })
       readable.on('close', () => {
-        return resolve(name)
+        return resolve(join(process.cwd(), folder, name))
       })
       readable.on('error', (data) => {
         return reject(data)
@@ -27,15 +28,18 @@ export class YoutubeService {
     })
   }
 
-  async toMp3({ path, output }: { path: string, output: string }) {
+  async toMp3({ path, output, keepVideo = false }: { path: string, output: string, keepVideo?: boolean }): Promise<{ files: Array<string>, output: string }> {
     return new Promise((resolve, reject) => {
       const process = new ffmpeg(path)
       process.then(video => {
-        video.fnExtractSoundToMP3(output, (err, files) => {
+        video.fnExtractSoundToMP3(output, async (err, files) => {
           if (err) {
             reject(err)
           }
-          resolve(files)
+          if (!keepVideo) {
+            await remove(path)
+          }
+          resolve({ files, output })
         })
       })
     })
