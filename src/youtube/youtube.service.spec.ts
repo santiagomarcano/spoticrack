@@ -3,7 +3,7 @@ import { YoutubeService } from './youtube.service';
 import { pathExists, remove, readdir } from 'fs-extra';
 import { join } from 'path';
 
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 describe('YoutubeService', () => {
   let service: YoutubeService;

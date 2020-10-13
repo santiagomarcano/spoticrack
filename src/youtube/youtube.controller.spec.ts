@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { YoutubeController } from './youtube.controller';
 import { YoutubeService } from './youtube.service';
 
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 describe('YoutubeController', () => {
   let controller: YoutubeController;
